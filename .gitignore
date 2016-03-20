@@ -1,0 +1,8 @@
+# IntelliJ IDE
+.idea
+
+# Istanbul coverage files
+coverage
+
+# Dependency directory
+node_modules
