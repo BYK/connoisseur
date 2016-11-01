@@ -12,6 +12,9 @@
     "test": "istanbul cover ./node_modules/mocha/bin/_mocha",
     "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
+  "bin": {
+    "connoisseur": "./index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/BYK/connoisseur.git"

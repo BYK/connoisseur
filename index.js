@@ -1,46 +1,36 @@
 "use strict";
 
 const connoisseur = require("./lib/connoisseur");
+const fs = require("fs");
+const sourceFiles = require("yargs").argv._;
 
-const CODE = `
-"use strict";
+const fixIndentation = code => code.replace(/(\r\n|\n|\r)/gm, "\n\t");
 
-// lalala
-[4, 9, 16].map(Math.sqrt);  // → [ 2, 3, 4 ]
-const sth = function () { return "lalala" === 1; };  // asd
-sth();  // eslint-disable-line no-unused-expressions
-// → false
-/* eslint-disable no-unused-expressions */
-"test str";
-"test";  // → 'test'
-/* eslint-enable no-unused-expressions */
-const time = 3 * 15;  // eslint-disable-line no-unused-vars
-// endcomm
-`;
-
-const result = connoisseur(CODE, "stdin");
-
-const exitCode = result.reduce((code, piece) => {
-    /* eslint-disable no-console */
-    let returnCode;
-
-    if (piece.error) {
-        returnCode = 2;
+const displayErrors = function (errors) {
+    errors.forEach(fileInfo => {
+        /* eslint-disable no-console */
         console.log(
-            "Error: \n",
-            piece,
-            piece.error.stack
-                .split("\n")
-                .slice(0, 2)
-                .join("\n")
+            `Errors found for file ${fileInfo.path}:\n${
+                fileInfo.errors.reduce((prev, errorData) =>
+                    `${prev}\t${fixIndentation(errorData.code)}\t${
+                        errorData.error || `→ Expected: ${errorData.expected}, Found: ${errorData.actual}`
+                    }\n`
+                , "")
+            }`
         );
-    } else {
-        returnCode = 1;
-        console.log("Failed: \n", piece);
-    }
+        /* eslint-enable no-console */
+    });
+};
 
-    return Math.max(returnCode, code);
-    /* eslint-enable no-console */
-});
+const errors = sourceFiles
+    .map(filePath => ({
+        path: filePath,
+        errors: connoisseur(fs.readFileSync(filePath, "utf8")),
+    }))
+    .filter(fileInfo => fileInfo.errors.length);
+
+const exitCode = errors.length > 0 ? 1 : 0;
+
+displayErrors(errors);
 
 process.exit(exitCode);
