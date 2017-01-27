@@ -29,7 +29,7 @@ const errors = sourceFiles
     }))
     .filter(fileInfo => fileInfo.errors.length);
 
-const exitCode = errors.length > 0 ? 1 : 0;
+const exitCode = errors.length ? 1 : 0;
 
 displayErrors(errors);
 
