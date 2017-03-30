@@ -25,21 +25,20 @@ const displayFileErrors = function (fileInfo) {
 if (useFile) {
     const sourceFiles = argv._;
 
-    const files = sourceFiles.filter(filePath => {
-        if (fs.existsSync(filePath))
-            return true;
+    const { valid, invalid } = sourceFiles.reduce((results, filePath) => {
+        results[fs.existsSync(filePath) ? "valid" : "invalid"].push(filePath);
 
-        console.log(`File '${filePath}' doesn't exist.`);
+        return results;
+    }, { valid: [], invalid: [] });
 
-        return false;
-    });
+    invalid.forEach(filePath => console.log(`File '${filePath}' doesn't exist.`));
 
-    if (!files.length) {
+    if (!valid.length) {
         console.log("No files found.");
-        process.exitCode = 1;
+        process.exit(1);
     }
 
-    const errors = files.map(filePath => ({
+    const errors = valid.map(filePath => ({
         path: filePath,
         errors: connoisseur(fs.readFileSync(filePath, "utf8")),
     }))
