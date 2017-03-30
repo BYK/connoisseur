@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 "use strict";
 
 const connoisseur = require("./lib/connoisseur");
@@ -13,7 +15,6 @@ const displayFileErrors = function (fileInfo) {
     if (!fileInfo.errors)
         return;
 
-    /* eslint-disable no-console */
     console.log(
         `Errors found for file ${fileInfo.path}:\n${
             fileInfo.errors.reduce((prev, errorData) =>
@@ -23,7 +24,6 @@ const displayFileErrors = function (fileInfo) {
                 , "")
             }`
     );
-    /* eslint-enable no-console */
 };
 
 if (useStdIn) {
