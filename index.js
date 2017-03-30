@@ -18,8 +18,8 @@ const displayFileErrors = function (fileInfo) {
         `Errors found for file ${fileInfo.path}:\n${
             fileInfo.errors.reduce((prev, errorData) =>
                     `${prev}\t${fixIndentation(errorData.code)}\t${
-                        errorData.error || `→ Expected: ${errorData.expected}, Found: ${errorData.actual}`
-                    }\n`
+                    errorData.error || `→ Expected: ${errorData.expected}, Found: ${errorData.actual}`
+                        }\n`
                 , "")
             }`
     );
