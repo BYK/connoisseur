@@ -14,11 +14,11 @@ const displayFileErrors = function (fileInfo) {
     console.log(
         `Errors found for file ${fileInfo.path}:\n${
             fileInfo.errors.reduce((prev, errorData) =>
-                    `${prev}\t${fixIndentation(errorData.code)}\t${
+                `${prev}\t${fixIndentation(errorData.code)}\t${
                     errorData.error || `→ Expected: ${errorData.expected}, Found: ${errorData.actual}`
-                        }\n`
-                , "")
-            }`
+                }\n`
+            , "")
+        }`
     );
 };
 
