@@ -38,65 +38,65 @@ describe("connoisseur", () => {
                 });
             });
         });
+    });
 
-        describe("stdin", () => {
-            it("should print no error message for plain javascript ", done => {
-                const proc = spawn("node", ["./index.js"]);
-                proc.stdin.write(`var a = "foo"${EOL}`);
-                proc.stdout.on("data", data => {
-                    expect(data.toString()).to.be.equal("No errors found.\n");
-                    done();
-                });
-                proc.stdin.end();
+    describe("stdin", () => {
+        it("should print no error message for plain JavaScript", done => {
+            const proc = spawn("node", ["./index.js"]);
+            proc.stdin.write(`var a = "foo"${EOL}`);
+            proc.stdout.on("data", data => {
+                expect(data.toString()).to.be.equal("No errors found.\n");
+                done();
             });
+            proc.stdin.end();
+        });
 
-            it("should print no error message for a valid javascript source with a valid connoisseur test", done => {
-                const proc = spawn("node", ["./index.js"]);
-                proc.stdin.write("[4, 9, 16].map(Math.sqrt);  // → [ 2, 3, 4 ]");
-                proc.stdout.on("data", data => {
-                    expect(data.toString()).to.be.equal("No errors found.\n");
-                    done();
-                });
-                proc.stdin.end();
+        it("should print no error message for a valid JavaScript source with a valid connoisseur test", done => {
+            const proc = spawn("node", ["./index.js"]);
+            proc.stdin.write("[4, 9, 16].map(Math.sqrt);  // → [ 2, 3, 4 ]");
+            proc.stdout.on("data", data => {
+                expect(data.toString()).to.be.equal("No errors found.\n");
+                done();
             });
+            proc.stdin.end();
+        });
 
-            it("should print errors for a valid javascript source with an invalid connoisseur test", done => {
-                const proc = spawn("node", ["./index.js"]);
-                proc.stdin.write("[4, 9, 16].map(Math.sqrt);  // → [ 1, 2, 3 ]");
-                proc.stdout.on("data", data => {
-                    expect(data.toString()).to.be.equal(
-                        "Errors found for file STDIN:\n\t[4, 9, 16].map(Math.sqrt);\t→ Expected: [ 1, 2, 3 ], Found: [ 2, 3, 4 ]\n\n"
-                    );
-                    done();
-                });
-                proc.stdin.end();
+        it("should print errors for a valid JavaScript source with an invalid connoisseur test", done => {
+            const proc = spawn("node", ["./index.js"]);
+            proc.stdin.write("[4, 9, 16].map(Math.sqrt);  // → [ 1, 2, 3 ]");
+            proc.stdout.on("data", data => {
+                expect(data.toString()).to.be.equal(
+                    "Errors found for file STDIN:\n\t[4, 9, 16].map(Math.sqrt);\t→ Expected: [ 1, 2, 3 ], Found: [ 2, 3, 4 ]\n\n"
+                );
+                done();
             });
+            proc.stdin.end();
         });
     });
 
     describe("lib", () => {
         it("should return an empty array for an empty string", () => {
-            expect(connoisseur("")).to.be.empty();
+            expect(connoisseur("", "STDIN", { checkPrefix: "→" })).to.be.empty();
         });
 
         it("should return an empty array for a simple line comment", () => {
-            expect(connoisseur("// simple comment")).to.be.empty();
+            expect(connoisseur("// simple comment", "STDIN", { checkPrefix: "→" })).to.be.empty();
         });
 
         it("should return an empty array for a simple inline comment", () => {
-            expect(connoisseur("/* simple comment */")).to.be.empty();
+            expect(connoisseur("/* simple comment */", "STDIN", { checkPrefix: "→" })).to.be.empty();
         });
 
         it("should return an empty array for valid assertions with line comments", () => {
-            expect(connoisseur("3 * 5  // → 15")).to.be.empty();
+            expect(connoisseur("3 * 5  // → 15", "STDIN", { checkPrefix: "→" })).to.be.empty();
         });
 
         it("should return an empty array for valid assertions with inline comments", () => {
-            expect(connoisseur("3 * 5  /* → 15 */")).to.be.empty();
+            expect(connoisseur("3 * 5  /* → 15 */", "STDIN", { checkPrefix: "→" })).to.be.empty();
         });
 
         it("should return an array with assertion error for invalid assertions with line comments", () => {
-            const result = connoisseur("3 * 5  // → 12");
+            const result = connoisseur("3 * 5  // → 12", "STDIN", { checkPrefix: "→" });
             expect(result).to.not.be.empty();
             expect(result[0]).to.be.eql({
                 actual: "15",
@@ -113,7 +113,7 @@ describe("connoisseur", () => {
         });
 
         it("should return an array with assertion error for invalid assertions with inline comments", () => {
-            const result = connoisseur("3 * 5  /* → 12 */");
+            const result = connoisseur("3 * 5  /* → 12 */", "STDIN", { checkPrefix: "→" });
             expect(result).to.not.be.empty();
             expect(result[0]).to.be.eql({
                 actual: "15",
@@ -130,7 +130,7 @@ describe("connoisseur", () => {
         });
 
         it("should return an array with the exception for code throwing exceptions", () => {
-            const result = connoisseur("hello();  // → 12");
+            const result = connoisseur("hello();  // → 12", "STDIN", { checkPrefix: "→" });
             expect(result).to.not.be.empty();
             expect(result[0]).to.be.eql({
                 error: new Error("ReferenceError: hello is not defined"),

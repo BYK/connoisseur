@@ -5,8 +5,26 @@
 const connoisseur = require("./lib/connoisseur");
 const fs = require("fs");
 const concat = require("concat-stream");
-const argv = require("yargs").boolean("f").argv;
+const argv = require("yargs")
+    .options({
+        /* eslint-disable id-length */
+        f: {
+            alias: "file",
+            describe: "Use file as input",
+            type: "boolean",
+            default: false,
+        },
+        p: {
+            alias: "check-prefix",
+            describe: "Customize check prefix",
+            type: "string",
+            default: "→",
+        },
+        /* eslint-enable id-length */
+    }).argv;
+
 const useFile = argv.f;
+const checkPrefix = ` ${argv.p} `;
 
 const fixIndentation = code => code.replace(/(\r\n|\n|\r)/gm, "\n\t");
 
@@ -41,7 +59,7 @@ if (useFile) {
 
     const errors = files.map(filePath => ({
         path: filePath,
-        errors: connoisseur(fs.readFileSync(filePath, "utf8")),
+        errors: connoisseur(fs.readFileSync(filePath, "utf8"), filePath, { checkPrefix }),
     }))
     .filter(fileInfo => fileInfo.errors.length);
 
@@ -56,7 +74,7 @@ if (useFile) {
     process.stdin.pipe(concat({ encoding: "string" }, text => {
         const errors = {
             path: "STDIN",
-            errors: connoisseur(text),
+            errors: connoisseur(text, "STDIN", { checkPrefix }),
         };
 
         if (errors.errors.length) {
